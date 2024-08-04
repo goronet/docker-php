@@ -1,0 +1,42 @@
+services:
+
+  php-fpm:
+    image: php:5.6-fpm
+    container_name: php-fpm
+    volumes:
+      - ../:/var/www
+      - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
+    networks:
+      - internal
+    restart: always
+    environment:
+      - COMPOSER_ALLOW_SUPERUSER=1
+    working_dir: /var/wwwd
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ../:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    networks:
+      - internal
+    restart: always
+    depends_on:
+      - php-fpm
+
+  composer:
+    image: composer:latest
+    container_name: composer
+    volumes:
+      - ../:/app
+    networks:
+      - internal
+    restart: no
+    command: install
+
+networks:
+  internal:
+    driver: bridge
